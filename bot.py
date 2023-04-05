@@ -1,22 +1,29 @@
-import re, discord, asyncio
+import asyncio
+import os
+import re
 
-BOT_TOKEN = "Bot Token"
-CHANNEL_ID = "Channel Id"
+import disnake
+from disnake.ext import commands
+
+with open('.env') as f:
+    for line in f:
+        key, value = line.strip().split('=')
+        os.environ[key] = value
+
+BOT_TOKEN = os.environ['TOKEN']
+CHANNEL_ID = 622096446237179924
 ALLOWED_KEYWORDS = [".mp4", ".gif", ".png", ".jpg", ".jpeg", "mp4", "gif", "png", "jpg", "jpeg"]
 
-intents = discord.Intents.all()
-client = discord.Client(intents=intents)
+intents = disnake.Intents.all()
+bot = commands.Bot(command_prefix='?', intents=intents)
 
-@client.event
-async def on_ready():
-    print(f'{client.user} has connected to Discord!')
 
-@client.event
+@bot.event
 async def on_message(message):
     if message.channel.id != CHANNEL_ID:
         return
 
-    if message.author == client.user:
+    if message.author == bot.user:
         return
 
     url_match = re.search("(?P<url>https?://[^\s]+)", message.content)
@@ -28,8 +35,15 @@ async def on_message(message):
         else:
             await message.delete()
 
-            bot_message = await message.channel.send(f"{message.author.mention} Links are not allowed, except for gifs and images.")
+            bot_message = await message.channel.send(
+                f"{message.author.mention} Links are not allowed, except for gifs and images.")
             await asyncio.sleep(5)
             await bot_message.delete()
 
-client.run(BOT_TOKEN)
+
+@bot.event
+async def on_ready():
+    print(f'{bot.user} has connected to Discord!')
+
+
+bot.run(BOT_TOKEN)
