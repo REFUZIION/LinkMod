@@ -10,20 +10,37 @@ with open('.env') as f:
         key, value = line.strip().split('=')
         os.environ[key] = value
 
-BOT_TOKEN = os.environ['TOKEN']
 CHANNEL_ID = 622096446237179924
 ALLOWED_KEYWORDS = [".mp4", ".gif", ".png", ".jpg", ".jpeg", "mp4", "gif", "png", "jpg", "jpeg"]
 
+
+class Bot(commands.AutoShardedInteractionBot):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    async def on_connect(self) -> None:
+        print(f"Logged in as {self.user}!")
+
+    async def on_ready(self) -> None:
+        await self.change_presence(
+            activity=disnake.Activity(
+                name="for forbidden urls",
+                type=disnake.ActivityType.watching
+            ),
+            status=disnake.Status.online
+        )
+
+
 intents = disnake.Intents.all()
-bot = commands.Bot(command_prefix='?', intents=intents)
+client = commands.Bot(command_prefix='?', intents=intents)
 
 
-@bot.event
+@client.event
 async def on_message(message):
     if message.channel.id != CHANNEL_ID:
         return
 
-    if message.author == bot.user:
+    if message.author == client.user:
         return
 
     url_match = re.search("(?P<url>https?://[^\s]+)", message.content)
@@ -41,9 +58,21 @@ async def on_message(message):
             await bot_message.delete()
 
 
-@bot.event
-async def on_ready():
-    print(f'{bot.user} has connected to Discord!')
+if __name__ == '__main__':
+    client = Bot(
+        intents=intents
+    )
 
+    for dirPath, dirNames, filenames in os.walk('./cogs/'):
+        for file in filenames:
+            if not file.endswith('.py'):
+                continue
 
-bot.run(BOT_TOKEN)
+            relative_path = os.path.relpath(os.path.join(dirPath, file), './cogs')
+
+            module_name = relative_path.replace(os.path.sep, '.')[:-3]
+
+            client.load_extension(f"cogs.{module_name}")
+            print(f"cogs.{module_name} has been loaded!")
+
+    client.run(os.environ['TOKEN'])
