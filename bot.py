@@ -34,34 +34,35 @@ class Bot(commands.AutoShardedInteractionBot):
 intents = disnake.Intents.all()
 client = commands.Bot(command_prefix='?', intents=intents)
 
-
-@client.event
-async def on_message(message):
-    if message.channel.id != CHANNEL_ID:
-        return
-
-    if message.author == client.user:
-        return
-
-    url_match = re.search("(?P<url>https?://[^\s]+)", message.content)
-    if url_match:
-        url = url_match.group("url")
-
-        if any(keyword in url for keyword in ALLOWED_KEYWORDS):
-            pass
-        else:
-            await message.delete()
-
-            bot_message = await message.channel.send(
-                f"{message.author.mention} Links are not allowed, except for gifs and images.")
-            await asyncio.sleep(5)
-            await bot_message.delete()
-
-
 if __name__ == '__main__':
     client = Bot(
         intents=intents
     )
+
+    @client.event
+    async def on_message(message):
+        if message.channel.id != CHANNEL_ID:
+            return
+
+        if message.author == client.user:
+            return
+
+        url_match = re.search("(?P<url>https?://[^\s]+)", message.content)
+        if url_match:
+            url = url_match.group("url")
+
+            if any(keyword in url for keyword in ALLOWED_KEYWORDS):
+                pass
+            else:
+                filename, extension = os.path.splitext(url)
+                if extension.lower() not in ALLOWED_KEYWORDS:
+                    await message.delete()
+
+                    bot_message = await message.channel.send(
+                        f"{message.author.mention} Links are not allowed, except for gifs and images.")
+                    await asyncio.sleep(5)
+                    await bot_message.delete()
+
 
     for dirPath, dirNames, filenames in os.walk('./cogs/'):
         for file in filenames:
