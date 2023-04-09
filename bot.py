@@ -43,7 +43,8 @@ if __name__ == '__main__':
 
     @client.event
     async def on_message(message):
-        if message.channel.id in utils.readJsonData('watched_channels.json'):
+        data = utils.readJsonData("watched_channels.json")
+        if str(message.channel.id) not in data:
             return
 
         if message.author == client.user:
