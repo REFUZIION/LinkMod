@@ -5,6 +5,8 @@ import re
 import disnake
 from disnake.ext import commands
 
+import utils
+
 with open('.env') as f:
     for line in f:
         key, value = line.strip().split('=')
@@ -41,7 +43,7 @@ if __name__ == '__main__':
 
     @client.event
     async def on_message(message):
-        if message.channel.id != CHANNEL_ID:
+        if message.channel.id in utils.readJsonData('watched_channels.json'):
             return
 
         if message.author == client.user:
@@ -58,8 +60,11 @@ if __name__ == '__main__':
                 if extension.lower() not in ALLOWED_KEYWORDS:
                     await message.delete()
 
-                    bot_message = await message.channel.send(
-                        f"{message.author.mention} Links are not allowed, except for gifs and images.")
+                    embed = disnake.Embed(color=0xFF4D4D)
+                    embed.description = f"{message.author.mention} Links are not allowed, except for gifs and images."
+                    embed.set_footer(text=f"Developed by REFUZIION#1337 @ 2023")
+
+                    bot_message = await message.channel.send(embed=embed)
                     await asyncio.sleep(5)
                     await bot_message.delete()
 

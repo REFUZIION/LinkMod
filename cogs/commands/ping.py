@@ -22,5 +22,5 @@ class Ping(commands.Cog):
         await inter.edit_original_message(embed=embed)
 
 
-def setup(self: commands.AutoShardedBot) -> None:
+def setup(self: commands.AutoShardedInteractionBot) -> None:
     self.add_cog(Ping(self))
