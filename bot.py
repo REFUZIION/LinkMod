@@ -25,7 +25,7 @@ class Bot(commands.AutoShardedInteractionBot):
     async def on_ready(self) -> None:
         await self.change_presence(
             activity=disnake.Activity(
-                name="for forbidden urls",
+                name=f"for forbidden urls in {len(client.guilds)} servers",
                 type=disnake.ActivityType.watching
             ),
             status=disnake.Status.online
