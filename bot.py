@@ -12,7 +12,6 @@ with open('.env') as f:
         key, value = line.strip().split('=')
         os.environ[key] = value
 
-CHANNEL_ID = 622096446237179924
 ALLOWED_KEYWORDS = [".mp4", ".gif", ".png", ".jpg", ".jpeg", "mp4", "gif", "png", "jpg", "jpeg"]
 
 
@@ -40,6 +39,7 @@ if __name__ == '__main__':
     client = Bot(
         intents=intents
     )
+
 
     @client.event
     async def on_message(message):
